@@ -3,3 +3,29 @@ node_modules/
 *.db
 .DS_Store
 npm-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+logs/
+combined.log
+error.log
+
+# Uploads
+uploads/
+!uploads/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
