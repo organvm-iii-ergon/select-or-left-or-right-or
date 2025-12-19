@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register - Pepe Political Party</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0c223b;
+            --red: #d1292f;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .auth-header {
+            background: var(--red);
+            color: var(--white);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            background: var(--white);
+            color: var(--navy);
+            border-bottom: 3px solid var(--red);
+        }
+
+        .auth-form {
+            padding: 30px;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--navy);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--red);
+        }
+
+        .bubble-info {
+            background: #f9f9f9;
+            border-left: 4px solid var(--red);
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #b01f24;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            color: #d00;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #e6ffe6;
+            color: #0a0;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .legal-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 20px 30px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .legal-notice strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .back-home {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .back-home a {
+            color: var(--navy);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .back-home a:hover {
+            color: var(--red);
+        }
+
+        @media (max-width: 500px) {
+            .auth-header h1 {
+                font-size: 24px;
+            }
+
+            .auth-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Join the Conversation</h1>
+            <p>Select your bubble. Speak your mind.</p>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+            <button class="auth-tab" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+            <div id="login-error" class="error-message"></div>
+
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Login</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form">
+            <div id="register-error" class="error-message"></div>
+            <div id="register-success" class="success-message"></div>
+
+            <div class="bubble-info">
+                <strong>Choose Your Bubble</strong>
+                You'll see content only from users in your selected affiliation. This cannot be changed later.
+            </div>
+
+            <div class="form-group">
+                <label for="register-username">Username</label>
+                <input type="text" id="register-username" name="username" required minlength="3">
+            </div>
+
+            <div class="form-group">
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="register-password">Password (min 6 characters)</label>
+                <input type="password" id="register-password" name="password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="register-affiliation">Select Your Affiliation</label>
+                <select id="register-affiliation" name="affiliation" required>
+                    <option value="">-- Choose Your Bubble --</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Liberal">Liberal</option>
+                    <option value="Libertarian">Libertarian</option>
+                    <option value="Socialist">Socialist</option>
+                    <option value="Anarchist">Anarchist</option>
+                    <option value="Centrist">Centrist</option>
+                    <option value="Apolitical">Apolitical</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+
+        <div class="legal-notice">
+            <strong>⚠️ Free Speech Platform - No Moderation</strong>
+            This platform has NO content moderation. Users are responsible for their own content.
+            Only content that is illegal under applicable law will be removed. By registering, you
+            acknowledge this policy.
+        </div>
+
+        <div class="back-home">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000/api'
+            : '/api';
+
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('register-form').classList.add('active');
+            }
+        }
+
+        function showError(formId, message) {
+            const errorDiv = document.getElementById(`${formId}-error`);
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(formId, message) {
+            const successDiv = document.getElementById(`${formId}-success`);
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        // Login handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'feed.html';
+                } else {
+                    showError('login', data.error || 'Login failed');
+                }
+            } catch (error) {
+                showError('login', 'Network error. Please try again.');
+            }
+        });
+
+        // Register handler
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const affiliation = document.getElementById('register-affiliation').value;
+
+            if (!affiliation) {
+                showError('register', 'Please select an affiliation');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, affiliation })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showSuccess('register', 'Account created! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'feed.html';
+                    }, 1500);
+                } else {
+                    showError('register', data.error || 'Registration failed');
+                }
+            } catch (error) {
+                showError('register', 'Network error. Please try again.');
+            }
+        });
+
+        // Check if already logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = 'feed.html';
+        }
+    </script>
+</body>
+</html>

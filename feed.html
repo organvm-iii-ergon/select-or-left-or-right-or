@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed - Pepe Social Network</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0c223b;
+            --red: #d1292f;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--navy);
+            color: var(--white);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo a {
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bubble-badge {
+            background: var(--red);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--white);
+            color: var(--navy);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .post-composer {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-composer h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--navy);
+        }
+
+        .post-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 15px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .post-textarea:focus {
+            outline: none;
+            border-color: var(--red);
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .char-count {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .post-btn {
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 10px 30px;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .post-btn:hover {
+            background: #b01f24;
+        }
+
+        .post-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .feed-header {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .feed-tabs {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feed-tab {
+            background: transparent;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .feed-tab.active {
+            color: var(--navy);
+            border-bottom-color: var(--red);
+        }
+
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .post {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s;
+        }
+
+        .post:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy), var(--red));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .author-bubble {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .post-time {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .post-content {
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+
+        .error-banner {
+            background: #ffe6e6;
+            color: #d00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .feed-tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .post-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">Pepe Social Network</a>
+            </div>
+            <div class="user-info">
+                <span id="username"></span>
+                <span class="bubble-badge" id="user-bubble"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="error-banner" id="error-banner"></div>
+
+        <div class="post-composer">
+            <h2>What's on your mind?</h2>
+            <textarea
+                class="post-textarea"
+                id="post-content"
+                placeholder="Share your thoughts... (No moderation - if it's legal, it's allowed)"
+                maxlength="5000"
+            ></textarea>
+            <div class="post-actions">
+                <span class="char-count"><span id="char-count">0</span> / 5000</span>
+                <button class="post-btn" id="post-btn" onclick="createPost()">Post</button>
+            </div>
+        </div>
+
+        <div class="feed-header">
+            <div class="feed-tabs">
+                <button class="feed-tab active" onclick="switchFeed('bubble')">My Bubble</button>
+                <button class="feed-tab" onclick="switchFeed('my')">My Posts</button>
+                <button class="feed-tab" onclick="switchFeed('all')">All Bubbles</button>
+            </div>
+        </div>
+
+        <div id="posts-container" class="posts-container">
+            <div class="loading">Loading posts...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000/api'
+            : '/api';
+
+        let currentUser = null;
+        let currentFeed = 'bubble';
+
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (!token || !user) {
+                window.location.href = 'auth.html';
+                return false;
+            }
+
+            currentUser = JSON.parse(user);
+            document.getElementById('username').textContent = currentUser.username;
+            document.getElementById('user-bubble').textContent = currentUser.affiliation;
+            return true;
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'auth.html';
+        }
+
+        // Character counter
+        document.getElementById('post-content').addEventListener('input', (e) => {
+            document.getElementById('char-count').textContent = e.target.value.length;
+        });
+
+        // Create post
+        async function createPost() {
+            const content = document.getElementById('post-content').value.trim();
+
+            if (!content) {
+                showError('Please enter some content');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            const postBtn = document.getElementById('post-btn');
+            postBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('post-content').value = '';
+                    document.getElementById('char-count').textContent = '0';
+                    loadFeed();
+                } else {
+                    showError(data.error || 'Failed to create post');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                postBtn.disabled = false;
+            }
+        }
+
+        // Switch feed
+        function switchFeed(feedType) {
+            currentFeed = feedType;
+
+            document.querySelectorAll('.feed-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            loadFeed();
+        }
+
+        // Load feed
+        async function loadFeed() {
+            const token = localStorage.getItem('token');
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '<div class="loading">Loading posts...</div>';
+
+            let endpoint;
+            switch (currentFeed) {
+                case 'bubble':
+                    endpoint = '/feed';
+                    break;
+                case 'my':
+                    endpoint = '/posts/my';
+                    break;
+                case 'all':
+                    endpoint = '/posts/all';
+                    break;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const posts = await response.json();
+
+                if (response.ok) {
+                    renderPosts(posts);
+                } else {
+                    showError(posts.error || 'Failed to load feed');
+                    container.innerHTML = '';
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+                container.innerHTML = '';
+            }
+        }
+
+        // Render posts
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container');
+
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No posts yet</h3>
+                        <p>Be the first to share something!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = posts.map(post => `
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">${post.username.charAt(0).toUpperCase()}</div>
+                            <div class="author-info">
+                                <div class="author-name">${escapeHtml(post.username)}</div>
+                                <div class="author-bubble">${escapeHtml(post.affiliation)}</div>
+                            </div>
+                        </div>
+                        <div class="post-time">${formatTime(post.created_at)}</div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Utility functions
+        function showError(message) {
+            const banner = document.getElementById('error-banner');
+            banner.textContent = message;
+            banner.style.display = 'block';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours}h ago`;
+
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffDays < 7) return `${diffDays}d ago`;
+
+            return date.toLocaleDateString();
+        }
+
+        // Initialize
+        if (checkAuth()) {
+            loadFeed();
+        }
+    </script>
+</body>
+</html>
