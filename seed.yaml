@@ -1,0 +1,34 @@
+# seed.yaml — Automation Contract for organvm-iii-ergon/select-or-left-or-right-or
+# Schema: seed/v1.0
+# Generated: 2026-02-17 (SENSORIA Sprint)
+
+schema_version: "1.0"
+organ: III
+organ_name: Commerce
+repo: select-or-left-or-right-or
+org: organvm-iii-ergon
+
+metadata:
+  implementation_status: ACTIVE
+  tier: standard
+  promotion_status: LOCAL
+  last_validated: "2026-02-16"
+  generated: "2026-02-17"
+  sprint: "SENSORIA"
+  language: javascript
+
+agents: []
+
+produces:
+  - type: product
+    description: "Software product, API, or service"
+
+consumes: []
+
+subscriptions:
+  - event: governance.updated
+    source: ORGAN-IV
+    action: Check compliance with updated governance rules
+  - event: health-audit.completed
+    source: ORGAN-IV
+    action: Review audit findings for this repo
