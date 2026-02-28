@@ -21,6 +21,7 @@ const { body, validationResult } = require('express-validator');
 const compression = require('compression');
 const crypto = require('crypto');
 const fs = require('fs').promises;
+const { AFFILIATIONS, NOTIFICATION_TYPES, extractHashtags, extractMentions } = require('./lib/utils');
 
 const app = express();
 const server = http.createServer(app);
@@ -133,24 +134,7 @@ const db = new sqlite3.Database('./social.db', (err) => {
 });
 
 // ============ CONSTANTS ============
-const AFFILIATIONS = [
-  'Conservative',
-  'Liberal',
-  'Libertarian',
-  'Socialist',
-  'Anarchist',
-  'Centrist',
-  'Apolitical'
-];
-
-const NOTIFICATION_TYPES = {
-  LIKE: 'like',
-  COMMENT: 'comment',
-  FOLLOW: 'follow',
-  MENTION: 'mention',
-  REPOST: 'repost',
-  MESSAGE: 'message'
-};
+// AFFILIATIONS, NOTIFICATION_TYPES imported from ./lib/utils
 
 // ============ UTILITY FUNCTIONS ============
 function logActivity(userId, action, entityType = null, entityId = null, req = null) {
@@ -192,17 +176,7 @@ function createNotification(userId, type, actorId, postId = null, commentId = nu
   );
 }
 
-function extractHashtags(text) {
-  const regex = /#(\w+)/g;
-  const matches = text.match(regex);
-  return matches ? matches.map(tag => tag.substring(1).toLowerCase()) : [];
-}
-
-function extractMentions(text) {
-  const regex = /@(\w+)/g;
-  const matches = text.match(regex);
-  return matches ? matches.map(mention => mention.substring(1)) : [];
-}
+// extractHashtags, extractMentions imported from ./lib/utils
 
 async function sendEmail(to, subject, html) {
   if (!process.env.SMTP_USER) {
