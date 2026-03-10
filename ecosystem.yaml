@@ -1,0 +1,8 @@
+schema_version: '1.0'
+repo: select-or-left-or-right-or
+organ: III
+display_name: "Satirical social network platform \u2014 static HTML site with affiliation-based\
+  \ content"
+delivery:
+- platform: web_app
+  status: not_started
