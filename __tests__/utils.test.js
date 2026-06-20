@@ -1,118 +1,119 @@
-import { describe, it, expect } from 'vitest';
-import {
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const {
   AFFILIATIONS,
   NOTIFICATION_TYPES,
   extractHashtags,
   extractMentions,
-} from '../lib/utils.js';
+} = require('../lib/utils.js');
 
 describe('AFFILIATIONS', () => {
   it('contains 7 affiliations', () => {
-    expect(AFFILIATIONS).toHaveLength(7);
+    assert.equal(AFFILIATIONS.length, 7);
   });
 
   it('includes expected affiliations', () => {
-    expect(AFFILIATIONS).toContain('Conservative');
-    expect(AFFILIATIONS).toContain('Liberal');
-    expect(AFFILIATIONS).toContain('Libertarian');
-    expect(AFFILIATIONS).toContain('Socialist');
-    expect(AFFILIATIONS).toContain('Centrist');
-    expect(AFFILIATIONS).toContain('Apolitical');
+    assert.ok(AFFILIATIONS.includes('Conservative'));
+    assert.ok(AFFILIATIONS.includes('Liberal'));
+    assert.ok(AFFILIATIONS.includes('Libertarian'));
+    assert.ok(AFFILIATIONS.includes('Socialist'));
+    assert.ok(AFFILIATIONS.includes('Centrist'));
+    assert.ok(AFFILIATIONS.includes('Apolitical'));
   });
 
   it('has no duplicates', () => {
     const unique = new Set(AFFILIATIONS);
-    expect(unique.size).toBe(AFFILIATIONS.length);
+    assert.equal(unique.size, AFFILIATIONS.length);
   });
 });
 
 describe('NOTIFICATION_TYPES', () => {
   it('has all expected notification types', () => {
-    expect(NOTIFICATION_TYPES.LIKE).toBe('like');
-    expect(NOTIFICATION_TYPES.COMMENT).toBe('comment');
-    expect(NOTIFICATION_TYPES.FOLLOW).toBe('follow');
-    expect(NOTIFICATION_TYPES.MENTION).toBe('mention');
-    expect(NOTIFICATION_TYPES.REPOST).toBe('repost');
-    expect(NOTIFICATION_TYPES.MESSAGE).toBe('message');
+    assert.equal(NOTIFICATION_TYPES.LIKE, 'like');
+    assert.equal(NOTIFICATION_TYPES.COMMENT, 'comment');
+    assert.equal(NOTIFICATION_TYPES.FOLLOW, 'follow');
+    assert.equal(NOTIFICATION_TYPES.MENTION, 'mention');
+    assert.equal(NOTIFICATION_TYPES.REPOST, 'repost');
+    assert.equal(NOTIFICATION_TYPES.MESSAGE, 'message');
   });
 
   it('has 6 types', () => {
-    expect(Object.keys(NOTIFICATION_TYPES)).toHaveLength(6);
+    assert.equal(Object.keys(NOTIFICATION_TYPES).length, 6);
   });
 });
 
 describe('extractHashtags', () => {
   it('extracts single hashtag', () => {
-    expect(extractHashtags('Hello #world')).toEqual(['world']);
+    assert.deepEqual(extractHashtags('Hello #world'), ['world']);
   });
 
   it('extracts multiple hashtags', () => {
-    expect(extractHashtags('#hello #world #test')).toEqual(['hello', 'world', 'test']);
+    assert.deepEqual(extractHashtags('#hello #world #test'), ['hello', 'world', 'test']);
   });
 
   it('lowercases hashtags', () => {
-    expect(extractHashtags('#Hello #WORLD')).toEqual(['hello', 'world']);
+    assert.deepEqual(extractHashtags('#Hello #WORLD'), ['hello', 'world']);
   });
 
   it('returns empty array for no hashtags', () => {
-    expect(extractHashtags('no hashtags here')).toEqual([]);
+    assert.deepEqual(extractHashtags('no hashtags here'), []);
   });
 
   it('returns empty array for empty string', () => {
-    expect(extractHashtags('')).toEqual([]);
+    assert.deepEqual(extractHashtags(''), []);
   });
 
   it('handles hashtags with numbers', () => {
-    expect(extractHashtags('#test123')).toEqual(['test123']);
+    assert.deepEqual(extractHashtags('#test123'), ['test123']);
   });
 
   it('handles hashtags with underscores', () => {
-    expect(extractHashtags('#hello_world')).toEqual(['hello_world']);
+    assert.deepEqual(extractHashtags('#hello_world'), ['hello_world']);
   });
 
   it('extracts hashtags from mixed content', () => {
-    expect(extractHashtags('Check out #coding and @user for #tips')).toEqual(['coding', 'tips']);
+    assert.deepEqual(extractHashtags('Check out #coding and @user for #tips'), ['coding', 'tips']);
   });
 
   it('ignores # without word after it', () => {
-    expect(extractHashtags('just a # sign')).toEqual([]);
+    assert.deepEqual(extractHashtags('just a # sign'), []);
   });
 });
 
 describe('extractMentions', () => {
   it('extracts single mention', () => {
-    expect(extractMentions('Hello @user')).toEqual(['user']);
+    assert.deepEqual(extractMentions('Hello @user'), ['user']);
   });
 
   it('extracts multiple mentions', () => {
-    expect(extractMentions('@alice and @bob')).toEqual(['alice', 'bob']);
+    assert.deepEqual(extractMentions('@alice and @bob'), ['alice', 'bob']);
   });
 
   it('preserves case', () => {
-    expect(extractMentions('@Alice @BOB')).toEqual(['Alice', 'BOB']);
+    assert.deepEqual(extractMentions('@Alice @BOB'), ['Alice', 'BOB']);
   });
 
   it('returns empty array for no mentions', () => {
-    expect(extractMentions('no mentions here')).toEqual([]);
+    assert.deepEqual(extractMentions('no mentions here'), []);
   });
 
   it('returns empty array for empty string', () => {
-    expect(extractMentions('')).toEqual([]);
+    assert.deepEqual(extractMentions(''), []);
   });
 
   it('handles mentions with numbers', () => {
-    expect(extractMentions('@user123')).toEqual(['user123']);
+    assert.deepEqual(extractMentions('@user123'), ['user123']);
   });
 
   it('handles mentions with underscores', () => {
-    expect(extractMentions('@hello_world')).toEqual(['hello_world']);
+    assert.deepEqual(extractMentions('@hello_world'), ['hello_world']);
   });
 
   it('extracts mentions from mixed content', () => {
-    expect(extractMentions('Hey @admin check #this')).toEqual(['admin']);
+    assert.deepEqual(extractMentions('Hey @admin check #this'), ['admin']);
   });
 
   it('ignores @ without word after it', () => {
-    expect(extractMentions('email @ sign')).toEqual([]);
+    assert.deepEqual(extractMentions('email @ sign'), []);
   });
 });
