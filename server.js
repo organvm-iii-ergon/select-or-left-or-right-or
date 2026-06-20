@@ -2123,42 +2123,42 @@ app.get('/api/posts/my', authenticateToken, (req, res) => {
 
 // ========== START SERVER ==========
 
-server.listen(PORT, () => {
-  logger.info(`╔════════════════════════════════════════════════════════════════╗`);
-  logger.info(`║  Pepe Social Network - Comprehensive Edition                   ║`);
-  logger.info(`╠════════════════════════════════════════════════════════════════╣`);
-  logger.info(`║  Server running on: http://localhost:${PORT.toString().padEnd(29)}║`);
-  logger.info(`║  Environment: ${(process.env.NODE_ENV || 'development').padEnd(45)}║`);
-  logger.info(`║  WebSocket: Enabled ${' '.repeat(39)}║`);
-  logger.info(`║  Rate Limiting: Enabled ${' '.repeat(35)}║`);
-  logger.info(`║  Logging: Winston (combined.log & error.log) ${' '.repeat(16)}║`);
-  logger.info(`╠════════════════════════════════════════════════════════════════╣`);
-  logger.info(`║  Features:                                                     ║`);
-  logger.info(`║  ✓ User Authentication (JWT + 2FA)                             ║`);
-  logger.info(`║  ✓ Affiliation-based Bubbles                                   ║`);
-  logger.info(`║  ✓ Posts, Comments, Likes                                      ║`);
-  logger.info(`║  ✓ Image Uploads                                               ║`);
-  logger.info(`║  ✓ Direct Messaging                                            ║`);
-  logger.info(`║  ✓ Follow/Block/Mute                                           ║`);
-  logger.info(`║  ✓ Hashtags & Trending                                         ║`);
-  logger.info(`║  ✓ Search & Discovery                                          ║`);
-  logger.info(`║  ✓ Notifications (Real-time)                                   ║`);
-  logger.info(`║  ✓ Bookmarks                                                   ║`);
-  logger.info(`║  ✓ Content Reporting                                           ║`);
-  logger.info(`║  ✓ Admin Panel                                                 ║`);
-  logger.info(`║  ✓ Analytics Dashboard                                         ║`);
-  logger.info(`║  ✓ GDPR Data Export                                            ║`);
-  logger.info(`║  ✓ Email Verification & Password Reset                         ║`);
-  logger.info(`╠════════════════════════════════════════════════════════════════╣`);
-  logger.info(`║  Policy: No Moderation - Legal Content Only                    ║`);
-  logger.info(`╚════════════════════════════════════════════════════════════════╝`);
-  logger.info('');
-  logger.info('Server ready. Press Ctrl+C to stop.');
-});
+function startServer() {
+  server.listen(PORT, () => {
+    logger.info(`╔════════════════════════════════════════════════════════════════╗`);
+    logger.info(`║  Pepe Social Network - Comprehensive Edition                   ║`);
+    logger.info(`╠════════════════════════════════════════════════════════════════╣`);
+    logger.info(`║  Server running on: http://localhost:${PORT.toString().padEnd(29)}║`);
+    logger.info(`║  Environment: ${(process.env.NODE_ENV || 'development').padEnd(45)}║`);
+    logger.info(`║  WebSocket: Enabled ${' '.repeat(39)}║`);
+    logger.info(`║  Rate Limiting: Enabled ${' '.repeat(35)}║`);
+    logger.info(`║  Logging: Winston (combined.log & error.log) ${' '.repeat(16)}║`);
+    logger.info(`╠════════════════════════════════════════════════════════════════╣`);
+    logger.info(`║  Features:                                                     ║`);
+    logger.info(`║  ✓ User Authentication (JWT + 2FA)                             ║`);
+    logger.info(`║  ✓ Affiliation-based Bubbles                                   ║`);
+    logger.info(`║  ✓ Posts, Comments, Likes                                      ║`);
+    logger.info(`║  ✓ Image Uploads                                               ║`);
+    logger.info(`║  ✓ Direct Messaging                                            ║`);
+    logger.info(`║  ✓ Follow/Block/Mute                                           ║`);
+    logger.info(`║  ✓ Hashtags & Trending                                         ║`);
+    logger.info(`║  ✓ Search & Discovery                                          ║`);
+    logger.info(`║  ✓ Notifications (Real-time)                                   ║`);
+    logger.info(`║  ✓ Bookmarks                                                   ║`);
+    logger.info(`║  ✓ Content Reporting                                           ║`);
+    logger.info(`║  ✓ Admin Panel                                                 ║`);
+    logger.info(`║  ✓ Analytics Dashboard                                         ║`);
+    logger.info(`║  ✓ GDPR Data Export                                            ║`);
+    logger.info(`║  ✓ Email Verification & Password Reset                         ║`);
+    logger.info(`╠════════════════════════════════════════════════════════════════╣`);
+    logger.info(`║  Policy: No Moderation - Legal Content Only                    ║`);
+    logger.info(`╚════════════════════════════════════════════════════════════════╝`);
+    logger.info('');
+    logger.info('Server ready. Press Ctrl+C to stop.');
+  });
+}
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-  logger.info('\nShutting down gracefully...');
+function closeServerAndDatabase(callback = () => {}) {
   server.close(() => {
     logger.info('HTTP server closed');
     db.close((err) => {
@@ -2167,28 +2167,47 @@ process.on('SIGINT', () => {
       } else {
         logger.info('Database connection closed');
       }
-      process.exit(0);
+      callback(err);
     });
   });
-});
+}
 
-process.on('SIGTERM', () => {
-  logger.info('\nSIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    logger.info('HTTP server closed');
-    db.close(() => {
-      logger.info('Database connection closed');
-      process.exit(0);
-    });
+if (require.main === module) {
+  startServer();
+
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    logger.info('\nShutting down gracefully...');
+    closeServerAndDatabase(() => process.exit(0));
   });
-});
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception:', error);
-  process.exit(1);
-});
+  process.on('SIGTERM', () => {
+    logger.info('\nSIGTERM received. Shutting down gracefully...');
+    closeServerAndDatabase(() => process.exit(0));
+  });
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception:', error);
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+}
+
+module.exports = {
+  app,
+  server,
+  io,
+  db,
+  logger,
+  authenticateToken,
+  requireAdmin,
+  logActivity,
+  createNotification,
+  sendEmail,
+  startServer,
+  closeServerAndDatabase,
+};
