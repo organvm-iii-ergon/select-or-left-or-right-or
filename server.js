@@ -33,7 +33,11 @@ const io = socketIO(server, {
 });
 
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret-key';
+
+if (!process.env.JWT_SECRET || !process.env.JWT_SECRET.trim()) {
+  throw new Error('FATAL: JWT_SECRET environment variable is missing or empty.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // ============ LOGGING CONFIGURATION ============
 const logger = winston.createLogger({

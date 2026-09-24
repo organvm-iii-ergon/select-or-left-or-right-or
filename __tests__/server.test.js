@@ -1,13 +1,29 @@
-const { after, afterEach, before, describe, it } = require('node:test');
+const { after, afterEach, before, beforeEach, describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const Module = require('node:module');
 
 const { AFFILIATIONS } = require('../lib/utils.js');
 
 const originalLoad = Module._load;
+const originalJwtSecret = captureJwtSecret();
 let serverModule;
 let fakeJwt;
 let fakeSocketIoServer;
+
+function captureJwtSecret() {
+  return {
+    present: Object.prototype.hasOwnProperty.call(process.env, 'JWT_SECRET'),
+    value: process.env.JWT_SECRET,
+  };
+}
+
+function restoreJwtSecret(snapshot) {
+  if (snapshot.present) {
+    process.env.JWT_SECRET = snapshot.value;
+  } else {
+    delete process.env.JWT_SECRET;
+  }
+}
 
 function middleware(req, res, next) {
   if (typeof next === 'function') {
@@ -292,6 +308,7 @@ async function invokeRoute(method, path, req, res = createResponse()) {
 
 before(() => {
   installDependencyMocks();
+  process.env.JWT_SECRET = 'test-secret-key';
   delete require.cache[require.resolve('../server.js')];
   serverModule = require('../server.js');
 });
@@ -314,8 +331,12 @@ afterEach(() => {
 });
 
 after(() => {
-  Module._load = originalLoad;
-  delete require.cache[require.resolve('../server.js')];
+  try {
+    Module._load = originalLoad;
+    delete require.cache[require.resolve('../server.js')];
+  } finally {
+    restoreJwtSecret(originalJwtSecret);
+  }
 });
 
 describe('server public utility routes', () => {
@@ -615,6 +636,77 @@ describe('post route workflows', () => {
     assert.deepEqual(res.body, { message: 'Post deleted successfully' });
     assert.deepEqual(runCalls[0].params, ['77']);
     assert.deepEqual(runCalls[1].params, [10, 'delete_post', 'post', '77', '127.0.0.1', 'node-test-agent']);
+  });
+});
+
+describe('JWT_SECRET initialization', () => {
+  let priorSecret;
+
+  beforeEach(() => {
+    priorSecret = captureJwtSecret();
+  });
+
+  afterEach(() => {
+    restoreJwtSecret(priorSecret);
+  });
+
+  it('fails closed when JWT_SECRET is missing', () => {
+    delete process.env.JWT_SECRET;
+    delete require.cache[require.resolve('../server.js')];
+
+    assert.throws(
+      () => require('../server.js'),
+      /FATAL: JWT_SECRET environment variable is missing or empty\./
+    );
+  });
+
+  it('fails closed when JWT_SECRET is empty', () => {
+    process.env.JWT_SECRET = '';
+    delete require.cache[require.resolve('../server.js')];
+
+    assert.throws(
+      () => require('../server.js'),
+      /FATAL: JWT_SECRET environment variable is missing or empty\./
+    );
+  });
+
+  it('fails closed when JWT_SECRET is whitespace-only', () => {
+    process.env.JWT_SECRET = '   \t\n ';
+    delete require.cache[require.resolve('../server.js')];
+
+    assert.throws(
+      () => require('../server.js'),
+      /FATAL: JWT_SECRET environment variable is missing or empty\./
+    );
+  });
+
+  it('initializes successfully when JWT_SECRET is explicitly configured', () => {
+    process.env.JWT_SECRET = 'explicit-test-secret';
+    delete require.cache[require.resolve('../server.js')];
+
+    let mod;
+    assert.doesNotThrow(() => {
+      mod = require('../server.js');
+    });
+    assert.ok(mod);
+  });
+
+  it('restores an originally absent environment entry without creating an undefined string', () => {
+    delete process.env.JWT_SECRET;
+    const absent = captureJwtSecret();
+    process.env.JWT_SECRET = 'temporary-test-secret';
+    restoreJwtSecret(absent);
+    assert.equal(Object.prototype.hasOwnProperty.call(process.env, 'JWT_SECRET'), false);
+    assert.equal(process.env.JWT_SECRET, undefined);
+  });
+
+  it('restores an originally present environment entry exactly', () => {
+    process.env.JWT_SECRET = 'original-synthetic-secret';
+    const present = captureJwtSecret();
+    delete process.env.JWT_SECRET;
+    restoreJwtSecret(present);
+    assert.equal(Object.prototype.hasOwnProperty.call(process.env, 'JWT_SECRET'), true);
+    assert.equal(process.env.JWT_SECRET, 'original-synthetic-secret');
   });
 });
 
