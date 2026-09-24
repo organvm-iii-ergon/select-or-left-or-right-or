@@ -292,6 +292,7 @@ async function invokeRoute(method, path, req, res = createResponse()) {
 
 before(() => {
   installDependencyMocks();
+  process.env.JWT_SECRET = 'test-secret-key';
   delete require.cache[require.resolve('../server.js')];
   serverModule = require('../server.js');
 });
@@ -615,6 +616,55 @@ describe('post route workflows', () => {
     assert.deepEqual(res.body, { message: 'Post deleted successfully' });
     assert.deepEqual(runCalls[0].params, ['77']);
     assert.deepEqual(runCalls[1].params, [10, 'delete_post', 'post', '77', '127.0.0.1', 'node-test-agent']);
+  });
+});
+
+describe('JWT_SECRET initialization', () => {
+  const originalSecret = process.env.JWT_SECRET;
+
+  afterEach(() => {
+    process.env.JWT_SECRET = originalSecret;
+  });
+
+  it('fails closed when JWT_SECRET is missing', () => {
+    delete process.env.JWT_SECRET;
+    delete require.cache[require.resolve('../server.js')];
+
+    assert.throws(
+      () => require('../server.js'),
+      /FATAL: JWT_SECRET environment variable is missing or empty\./
+    );
+  });
+
+  it('fails closed when JWT_SECRET is empty', () => {
+    process.env.JWT_SECRET = '';
+    delete require.cache[require.resolve('../server.js')];
+
+    assert.throws(
+      () => require('../server.js'),
+      /FATAL: JWT_SECRET environment variable is missing or empty\./
+    );
+  });
+
+  it('fails closed when JWT_SECRET is whitespace-only', () => {
+    process.env.JWT_SECRET = '   \t\n ';
+    delete require.cache[require.resolve('../server.js')];
+
+    assert.throws(
+      () => require('../server.js'),
+      /FATAL: JWT_SECRET environment variable is missing or empty\./
+    );
+  });
+
+  it('initializes successfully when JWT_SECRET is explicitly configured', () => {
+    process.env.JWT_SECRET = 'explicit-test-secret';
+    delete require.cache[require.resolve('../server.js')];
+
+    let mod;
+    assert.doesNotThrow(() => {
+      mod = require('../server.js');
+    });
+    assert.ok(mod);
   });
 });
 
